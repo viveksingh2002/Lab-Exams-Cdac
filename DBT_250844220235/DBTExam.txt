@@ -1,0 +1,189 @@
+1) D1_93010_Vivek>select p.PassengerId, p.Name, p.Age, p.City, t.TrainName
+    -> from bookings b, trains t, passengers p
+    -> where p.PassengerId=b.PassengerId and t.TrainId=b.TrainId;
++-------------+--------------+------+---------+------------------+
+| PassengerId | Name         | Age  | City    | TrainName        |
++-------------+--------------+------+---------+------------------+
+|           1 | Ravi Kumar   |   30 | Delhi   | Rajdhani Express |
+|           2 | Ananya Verma |   15 | Mumbai  | Rajdhani Express |
+|           3 | Neha Gupta   |   28 | Kolkata | Shatabdi Express |
+|           4 | Shanti Devi  |   65 | Delhi   | Chennai Express  |
+|           3 | Neha Gupta   |   28 | Kolkata | Chennai Express  |
+|           5 | Priya Singh  |   22 | Delhi   | Duronto Express  |
+|           2 | Ananya Verma |   15 | Mumbai  | Duronto Express  |
+|           1 | Ravi Kumar   |   30 | Delhi   | Deccan Queen     |
++-------------+--------------+------+---------+------------------+
+
+
+2) D1_93010_Vivek>select p.Name, t.TrainName
+    -> from bookings b, trains t, passengers p
+    -> where b.BookingDate='2023-09-01' and p.PassengerId=b.PassengerId and t.TrainId=b.TrainId;
++--------------+------------------+
+| Name         | TrainName        |
++--------------+------------------+
+| Ravi Kumar   | Rajdhani Express |
+| Ananya Verma | Rajdhani Express |
++--------------+------------------+
+
+3) D1_93010_Vivek>select distinct p.Name
+    -> from bookings b, trains t, passengers p
+    -> where t.Destination='Mumbai' and p.PassengerId=b.PassengerId and t.TrainId=b.TrainId;
++--------------+
+| Name         |
++--------------+
+| Ravi Kumar   |
+| Ananya Verma |
+| Priya Singh  |
++--------------+
+
+4) D1_93010_Vivek>select substr(TrainName, 1, 3) "Train_Name" from trains;
++------------+
+| Train_Name |
++------------+
+| Raj        |
+| Sha        |
+| Che        |
+| Dur        |
+| Dec        |
++------------+
+
+5) D1_93010_Vivek>select Name
+    -> from passengers
+    -> where Age<30
+    -> union
+    -> select p.Name
+    -> from bookings b, passengers p
+    -> where b.TrainId=103 and p.PassengerId = b.PassengerId;
++--------------+
+| Name         |
++--------------+
+| Ananya Verma |
+| Neha Gupta   |
+| Priya Singh  |
+| Shanti Devi  |
++--------------+
+
+6) D1_93010_Vivek>select * from passengers
+    -> where Name like 'A%' or Name like 'P%';
++-------------+--------------+------+--------+
+| PassengerID | Name         | Age  | City   |
++-------------+--------------+------+--------+
+|           2 | Ananya Verma |   15 | Mumbai |
+|           5 | Priya Singh  |   22 | Delhi  |
++-------------+--------------+------+--------+
+
+7) D1_93010_Vivek>select TrainId, count(PassengerId) "TotalBookings"
+    -> from bookings
+    -> group by TrainId;
++---------+---------------+
+| TrainId | TotalBookings |
++---------+---------------+
+|     101 |             2 |
+|     102 |             1 |
+|     103 |             2 |
+|     104 |             2 |
+|     105 |             1 |
++---------+---------------+
+
+8) D1_93010_Vivek>select p.PassengerId, p.Name, p.Age, p.City, b.BookingId, b.TrainId, b.BookingDate, b.SeatNo
+    -> from bookings b, passengers p
+    -> where b.BookingDate=(select max(bookingDate) from bookings) and p.PassengerId=b.PassengerId;
++-------------+------------+------+---------+-----------+---------+-------------+--------+
+| PassengerId | Name       | Age  | City    | BookingId | TrainId | BookingDate | SeatNo |
++-------------+------------+------+---------+-----------+---------+-------------+--------+
+|           3 | Neha Gupta |   28 | Kolkata |      1008 |     103 | 2023-09-07  | C2-7   |
++-------------+------------+------+---------+-----------+---------+-------------+--------+
+
+
+========================================================================================================
+
+PL/SQL
+
+1) D1_93010_Vivek>delimiter //
+D1_93010_Vivek>create procedure GetOldestPassenger()
+    -> begin
+    -> declare a int default 101;
+    -> declare b int;
+    -> declare c varchar(50);
+    -> declare d int;
+    -> declare x int default 0;
+    -> declare c1 cursor for select PassengerId, Name, Age from passengers where Age = (select max(Age) from passengers);
+    -> declare continue handler for not found set x=1;
+    -> open c1;
+    -> loop1:loop
+    -> fetch c1 into b, c, d;
+    -> if x=1 then
+    -> leave loop1;
+    -> end if;
+    -> insert into OldestPassengerReport values(a, b, c, d);
+    -> set a = a+1;
+    -> end loop;
+    -> end //
+Query OK, 0 rows affected (0.01 sec)
+
+D1_93010_Vivek>delimiter ;
+D1_93010_Vivek>call GetOldestPassenger();
+Query OK, 0 rows affected (0.01 sec)
+
+D1_93010_Vivek>select * from  OldestPassengerReport;
++------+-------------+-------------+------+
+| Id   | PassengerID | Name        | Age  |
++------+-------------+-------------+------+
+|  101 |           4 | Shanti Devi |   65 |
++------+-------------+-------------+------+
+
+
+2) D1_93010_Vivek>delimiter //
+D1_93010_Vivek>create procedure GenerateAgeCategoryReport()
+    -> begin
+    -> declare a int default 101;
+    -> declare b int;
+    -> declare c varchar(50);
+    -> declare d int;
+    -> declare e char(6);
+    -> declare x int default 0;
+    -> declare c1 cursor for select PassengerId, Name, Age from passengers;
+    -> declare continue handler for not found set x=1;
+    -> open c1;
+    -> loop1:loop
+    -> fetch c1 into b, c, d;
+    -> if x=1 then
+    -> leave loop1;
+    -> end if;
+    -> if d<18 then
+    -> set e = 'Child';
+    -> elseif d>=18 and d<60 then
+    -> set e = 'Adult';
+    -> else
+    -> set e = 'Senior';
+    -> end if;
+    -> insert into AgeCategoryReport values(a, b, c, d, e);
+    -> set a = a+1;
+    -> end loop;
+    -> end //
+Query OK, 0 rows affected (0.01 sec)
+
+D1_93010_Vivek>delimiter ;
+D1_93010_Vivek>call GenerateAgeCategoryReport();
+Query OK, 0 rows affected (0.01 sec)
+
+D1_93010_Vivek>select * from AgeCategoryReport;
++------+-------------+--------------+------+----------+
+| Id   | PassengerId | Name         | Age  | Category |
++------+-------------+--------------+------+----------+
+|  101 |           1 | Ravi Kumar   |   30 | Adult    |
+|  102 |           2 | Ananya Verma |   15 | Child    |
+|  103 |           3 | Neha Gupta   |   28 | Adult    |
+|  104 |           4 | Shanti Devi  |   65 | Senior   |
+|  105 |           5 | Priya Singh  |   22 | Adult    |
++------+-------------+--------------+------+----------+
+
+
+
+
+
+
+
+
+
+
