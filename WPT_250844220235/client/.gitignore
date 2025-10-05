@@ -1,6 +1,3 @@
-*.exe
-*.obj
-*.vscode
 # Logs
 logs
 *.log
