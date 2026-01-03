@@ -1,0 +1,28 @@
+﻿<html>
+<head>
+    <title>Home Page</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <script src="~/lib/bootstrap/dist/js/bootstrap.min.js"></script>
+</head>
+<body>
+    <div class="container p-3">
+        <div class="container text-center mb-3 p-2">
+            <h1>SignIn</h1>
+        </div>
+
+        <div class="container w-75 border border-3">
+            <form action="/Login/Signin" method="post">
+                <label class="form-check-label" name="UserName">Username</label>
+                <input class="form-control" type="text" name="UserName" value="" />
+
+                <label class="form-check-label" name="Password">Password</label>
+                <input class="form-control" type="password" name="Password" value="" />
+
+                <input class="btn btn-primary mt-3" type="submit" value="SignIn" />
+            </form>
+        </div>
+    </div>
+    </div>
+</body>
+
+</html>

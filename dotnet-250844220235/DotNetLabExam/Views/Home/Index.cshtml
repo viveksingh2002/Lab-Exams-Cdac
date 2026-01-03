@@ -1,0 +1,52 @@
+﻿
+@model List<DotNetLabExam.Models.Fir>
+<html>
+    <head>
+        <title>Home Page</title>
+        <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+        <script src="~/lib/bootstrap/dist/js/bootstrap.min.js"></script>
+    </head>
+    <body>
+        <div class="container text-center p-3">
+            <h1 class="mb-3">Fir List</h1>
+
+            <div class="container d-flex justify-content-between">
+                <div class="d-flex">
+                    <p class="me-2">Admin</p>
+                    <a href="/Home/Index" class="me-2">Fir List</a>
+                    <a href="/Home/Register">Register</a>
+                </div>
+                <div><a href="/Login/SignIn" class="btn btn-secondary">Logout</a></div>
+            </div>
+            <div class="container">
+                <table class="table table-responsive table-bordered">
+                    <tr>
+                        <th>Id</th>
+                        <th>Complainant</th>
+                        <th>Mobile</th>
+                        <th>Fir Type</th>
+                        <th>Status</th>
+                        <th>Date</th>
+                        <th>Action</th>
+                    </tr>
+
+                @foreach(var fir in Model)
+                {
+                    <tr>
+                        <td>@fir.Id</td>
+                        <td>@fir.Complainant</td>
+                        <td>@fir.Mobile</td>
+                        <td>@fir.FirType</td>
+                        <td>@fir.Status</td>
+                        <td>@fir.Date</td>
+                        <td><a href = "/Home/Update/@fir.Id" class="btn btn-warning">Update</a></td>
+                    </tr>
+                }
+
+
+                </table>
+            </div>
+        </div>
+    </body>
+
+</html>
